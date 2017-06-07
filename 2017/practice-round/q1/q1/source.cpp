@@ -1,12 +1,15 @@
-#include "iostream"
-#include "unordered_set"
-#include "string"
-#include "algorithm"
+#include <iostream>
+#include <unordered_set>
+#include <string>
+#include <algorithm>
+#include <fstream>
 
 using std::cout;
 using std::cin;
 using std::unordered_set;
 using std::string;
+using std::ifstream;
+using std::getline;
 
 int main() {
 	int T, N;	
@@ -17,66 +20,71 @@ int main() {
 	// APAC CODE JAM => APCODEJM
 
 	// 2)
-	// Assume whitespaces are ignored and do not influence alphabetical order
-	// GOOGLE => GOLE
-	// GOOGLA => GOLA
-	cin >> T;
-	while (T--) {
-		cin >> N;
-		cin.ignore();
+	// Assume whitespaces are ignored and do not influence alphabetical order??
+	// GOOG LE => GOLE
+	// GOOGL A => GOLA
 
-		string str;	
-		string leader;		
-		int longestCount = 0;
-		unordered_set<char> us;
+	ifstream myfile("A-large-practice.in");
+	std::ofstream outfile("A-large-output.txt", std::ofstream::binary);
 
-		for(size_t m = 0; m < N; m++) {
-			us.clear();
-			bool isStrUnderTestEarlier = false;
-			bool isEarliestSet = false;
-			unordered_set<char>::const_iterator it;			
-			getline(cin, str);			
+	string str, leader;
+	int longestCount;
+	unordered_set<char> us;
 
-			if (N == 1) {
-				cout << str << "\n";
-			}
-			else {
-				int count = 0;
+	if (myfile.is_open()) {
+		myfile >> T;
+		for(int i = 1; i <= T; i++) {
+			myfile >> N;
+			myfile.ignore();
 
-				string strToTest = str;
-				strToTest.erase(remove_if(strToTest.begin(), strToTest.end(), isspace), strToTest.end());
-				for (size_t i = 0; i < strToTest.length(); i++) {
-					it = us.find(strToTest[i]);
-					if (it == us.end()) {
-						count++;
-						us.insert(strToTest[i]);
-					}
-					
-					if (i < leader.length() && !isEarliestSet) {
-						if (strToTest[i] < leader[i]) {
-							isStrUnderTestEarlier = true;
-							isEarliestSet = true;
-						}
-						else if (leader[i] < strToTest[i]) {
-							isStrUnderTestEarlier = false;
-							isEarliestSet = true;
-						}
-					}
-				}				
+			str = "";
+			leader = "";
+			longestCount = 0;			
 
-				if (count > longestCount) {
-					leader = str;
-					longestCount = count;
+			for (size_t m = 0; m < N; m++) {
+				us.clear();
+				bool isStrUnderTestEarlier = false;
+				bool isEarliestSet = false;
+				unordered_set<char>::const_iterator it;
+				getline(myfile, str);
+
+				if (N == 1) {
+					cout << str << "\n";
 				}
-				else if (count == longestCount) {
-					if (isStrUnderTestEarlier)
-					{
+				else {
+					for (size_t i = 0; i < str.length(); i++) {
+						it = us.find(str[i]);
+						if (str[i] != ' ' && it == us.end()) {	// DO NOT include space in hashset.
+							us.insert(str[i]);
+						}
+
+						if (i < leader.length() && !isEarliestSet) {
+							if (str[i] < leader[i]) {
+								isStrUnderTestEarlier = true;
+								isEarliestSet = true;
+							}
+							else if (leader[i] < str[i]) {
+								isStrUnderTestEarlier = false;
+								isEarliestSet = true;
+							}
+						}
+					}
+					int count = us.size();
+					if (count > longestCount) {
 						leader = str;
+						longestCount = count;
+					}
+					else if (count == longestCount) {
+						if (isStrUnderTestEarlier)
+						{
+							leader = str;
+						}
 					}
 				}
-			}			
+			}
+			outfile << "Case #" << i << ": " << leader << "\n";
 		}
-		cout << leader << "\n";
 	}
+	
 	return 0;
 }
